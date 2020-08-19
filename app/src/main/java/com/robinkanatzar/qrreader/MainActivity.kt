@@ -1,16 +1,18 @@
 package com.robinkanatzar.qrreader
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.AdapterView
-import androidx.core.app.ActivityCompat
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
+
 
 class MainActivity : AppCompatActivity(),
     ActivityCompat.OnRequestPermissionsResultCallback {
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity(),
     private var preview: CameraSourcePreview? = null
     private var graphicOverlay: GraphicOverlay? = null
     private var selectedModel = BARCODE_SCANNING
+
+    private var powerConnectionReceiver: PowerConnectionReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,12 +97,23 @@ class MainActivity : AppCompatActivity(),
         Log.d(TAG, "onResume")
         createCameraSource(selectedModel)
         startCameraSource()
+
+        // Charging listener
+        powerConnectionReceiver = PowerConnectionReceiver()
+        val ifilter = IntentFilter()
+        ifilter.addAction(Intent.ACTION_POWER_CONNECTED)
+        ifilter.addAction(Intent.ACTION_POWER_DISCONNECTED)
+        //ifilter.addAction(Intent.ACTION_BATTERY_CHANGED)
+        registerReceiver(powerConnectionReceiver, ifilter)
     }
 
     /** Stops the camera.  */
     override fun onPause() {
         super.onPause()
         preview?.stop()
+
+        // Charging listener
+        unregisterReceiver(powerConnectionReceiver)
     }
 
     public override fun onDestroy() {

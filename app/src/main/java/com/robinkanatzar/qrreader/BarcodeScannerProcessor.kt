@@ -1,6 +1,9 @@
 package com.robinkanatzar.qrreader
 
 import android.content.Context
+import android.content.Context.WIFI_SERVICE
+import android.net.wifi.WifiManager
+import android.os.BatteryManager
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import com.google.android.gms.tasks.Task
@@ -9,6 +12,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+
 
 class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBase<List<Barcode>>(context) {
 
@@ -41,7 +45,7 @@ class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBas
                     val type = barcode.wifi!!.encryptionType
 
                     Log.d("RCK", "SSID = $ssid, password = $password, type = $type")
-                    
+
                     barcodeScanner.close()
                     val builder =
                         AlertDialog.Builder(context)
@@ -51,6 +55,8 @@ class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBas
                             "Yes"
                         ) { dialog, id ->
                             // TODO start wifi connection
+                            checkIsCharging()
+                            //connectWifi(ssid, password, type)
                             dialog.dismiss()
                         }
                         .setNegativeButton(
@@ -62,15 +68,30 @@ class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBas
                     val alert = builder.create()
                     alert.show()
                 }
-                Barcode.TYPE_URL -> {
+                /*Barcode.TYPE_URL -> {
                     val title = barcode.url!!.title
                     val url = barcode.url!!.url
-                    // TODO open url, exit scanning
-                }
+                }*/
             }
 
             //logExtrasForTesting(barcode)
         }
+    }
+
+    private fun connectWifi(ssid: String?, password: String?, type: Int) {
+        /*val wifiManager: WifiManager = (WifiManager)
+            context.applicationContext.getSystemService(WIFI_SERVICE)
+        if (!wifiManager.isWifiEnabled) {
+            wifiManager.isWifiEnabled = true
+        }*/
+
+
+    }
+
+    private fun checkIsCharging() {
+        val batteryManager =
+            context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        Log.d("RCK", "isCharging? ${batteryManager.isCharging}")
     }
 
     override fun onFailure(e: Exception) {
