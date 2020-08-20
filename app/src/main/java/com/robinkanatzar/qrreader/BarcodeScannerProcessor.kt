@@ -2,10 +2,12 @@ package com.robinkanatzar.qrreader
 
 import android.content.Context
 import android.content.Context.WIFI_SERVICE
+import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -56,7 +58,7 @@ class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBas
                         ) { dialog, id ->
                             // TODO start wifi connection
                             checkIsCharging()
-                            //connectWifi(ssid, password, type)
+                            connectWifi(ssid, password, type)
                             dialog.dismiss()
                         }
                         .setNegativeButton(
@@ -79,13 +81,18 @@ class BarcodeScannerProcessor(private val context: Context) : VisionProcessorBas
     }
 
     private fun connectWifi(ssid: String?, password: String?, type: Int) {
-        /*val wifiManager: WifiManager = (WifiManager)
-            context.applicationContext.getSystemService(WIFI_SERVICE)
-        if (!wifiManager.isWifiEnabled) {
-            wifiManager.isWifiEnabled = true
-        }*/
+        val wifiManager = context.getSystemService(WIFI_SERVICE) as WifiManager
+        wifiManager.isWifiEnabled = true
 
+        val wifiConfig = WifiConfiguration()
+        wifiConfig.SSID = "\"" + ssid + "\""
+        wifiConfig.preSharedKey = "\""+ password +"\""
 
+        val netId = wifiManager.addNetwork(wifiConfig)
+        wifiManager.addNetwork(wifiConfig)
+        wifiManager.disconnect()
+        wifiManager.enableNetwork(netId, true)
+        wifiManager.reconnect()
     }
 
     private fun checkIsCharging() {

@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
     buildToolsVersion "30.0.0"
 
     defaultConfig {
         applicationId "com.robinkanatzar.qrreader"
-        minSdkVersion 23
-        targetSdkVersion 30
+        minSdkVersion 28
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
